@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <a href="http://stackoverflow.com/questions/35526822/removing-watermark-from-pdf-itextsharp">
@@ -27,13 +29,24 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor
 
     public static void main(String[] args) {
         try {
-            PdfReader reader = new PdfReader("D:\\Github\\watermark_rm\\src\\a.pdf");
+            PdfReader reader = new PdfReader("C:\\Users\\Administrator\\Desktop\\pdf\\test.pdf");
             OutputStream result = new FileOutputStream(new File("D:\\Github\\watermark_rm\\src\\out.pdf"));
             PdfStamper pdfStamper = new PdfStamper(reader, result);
-            PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
-            for(int i = 1;i <= reader.getNumberOfPages();i++){
-                identityEditor.editPage(pdfStamper, i);
+            Map<String, PdfLayer> pdfLayers = pdfStamper.getPdfLayers();
+            ////除导出的图层以外，删除其他所有图层
+            for(String key : pdfLayers.keySet()){
+                System.out.println(key);
+                if (!key.contains("UV"))
+                {
+                    PdfOCG oCGRemover = new OCGRemover();
+                    oCGRemover.RemoveLayers(reader, key);
+                }
             }
+
+//            PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
+//            for(int i = 1;i <= reader.getNumberOfPages();i++){
+////                identityEditor.editPage(pdfStamper, i);
+//            }
             pdfStamper.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
