@@ -15,8 +15,10 @@ import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfArray;
 import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfIndirectReference;
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.kernel.pdf.PdfObject;
 import com.itextpdf.kernel.pdf.PdfPage;
@@ -30,6 +32,8 @@ import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
+import com.itextpdf.text.pdf.PdfNumber;
+
 import java.io.File;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -49,54 +53,56 @@ public class TransparentWatermark  {
     protected void manipulatePdf(String dest) throws Exception {
         PdfDocument pdfDoc = new PdfDocument(new PdfReader(SRC), new PdfWriter(DEST));
         
-        PdfPage page = pdfDoc.getPage(2);
+        PdfPage page = pdfDoc.getPage(1);
         PdfDictionary dict = page.getPdfObject();
-        System.out.println(dict.size());
-        Set<Entry<PdfName, PdfObject>> entrySet = dict.entrySet();
-        for(Entry<PdfName, PdfObject> entry : entrySet){
-        	System.out.println(entry.getKey() + " :" + String.valueOf(entry.getValue().getType()));
-        	if(entry.getValue().isArray()){
-        		System.out.println(JSON.toJSONString(entry.getValue()));
-        	}
-        }
         
-        
+//        System.out.println(dict.size());
+//        Set<Entry<PdfName, PdfObject>> entrySet = dict.entrySet();
+//        for(Entry<PdfName, PdfObject> entry : entrySet){
+//        	System.out.println(entry.getKey() + " :" + String.valueOf(entry.getValue().getType()));
+//        	if(entry.getValue().isArray()){
+//        		System.out.println(JSON.toJSONString(entry.getValue()));
+//        	}
+//        }
         
         PdfObject object = dict.get(PdfName.Contents);
+        
+//        PdfArray asArray = dict.getAsArray(PdfName.Contents);
+//        if(asArray != null){
+//        	//循环遍历内容
+//            for(int j=0; j<asArray.size(); j++){
+//                //获取原始字节流
+//            	 PdfStream asStream = asArray.getAsStream(j);
+//            	 isWaterMark(asStream.getBytes());
+//            }
+//        }
+        
         if (object instanceof PdfStream) {
-        	System.out.println("stream");
             PdfStream stream = (PdfStream) object;
+            System.out.println(stream.getAsArray(PdfName.Contents));
             byte[] data = stream.getBytes();
-            stream.setData(new String(data).replace("Hello World", "HELLO WORLD").getBytes("UTF-8"));
+            byte[] waterMark = isWaterMark(data);
+            if(waterMark == null){
+            	stream.setData(new byte[0]);
+            }else{
+            	stream.setData(waterMark);
+            }
         }
-        
-//        System.out.println(JSON.toJSONString(pdfDoc.getDocumentInfo()));
-//        System.out.println(pdfDoc.getFirstPage().getContentStreamCount());
-              
-//        PdfCanvas under = new PdfCanvas(pdfDoc.getFirstPage().newContentStreamBefore(), new PdfResources(), pdfDoc);    
-//        PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(FontConstants.HELVETICA));
-//        Paragraph p = new Paragraph("This watermark is added UNDER the existing content")
-//                .setFont(font).setFontSize(15);
-//        new Canvas(under, pdfDoc, pdfDoc.getDefaultPageSize())
-//                .showTextAligned(p, 297, 550, 1, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
-        
-//        
-//        PdfCanvas over = new PdfCanvas(pdfDoc.getFirstPage());
-//        p = new Paragraph("This watermark is added ON TOP OF the existing content")
-//                .setFont(font).setFontSize(15);
-//        new Canvas(over, pdfDoc, pdfDoc.getDefaultPageSize())
-//                .showTextAligned(p, 297, 500, 1, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
 
-//        p = new Paragraph("This TRANSPARENT watermark is added ON TOP OF the existing content")
-//                .setFont(font).setFontSize(15);
-//        over.saveState();
-//        PdfExtGState gs1 = new PdfExtGState();
-//        gs1.setFillOpacity(0.5f);
-//        over.setExtGState(gs1);
-//        new Canvas(over, pdfDoc, pdfDoc.getDefaultPageSize())
-//                .showTextAligned(p, 297, 450, 1, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
-//        over.restoreState();
-        
         pdfDoc.close();
+    }
+    
+    private byte[] isWaterMark(byte[] data){
+    	try{
+        	String markerStr = new String(data,"UTF-8");
+//        	System.out.println(markerStr);
+        	if(markerStr.contains("WatermarkSettings")){
+        		System.out.println("type : "+markerStr );
+        		markerStr.replace("/Artifact <</Subtype /Watermark /Type /Pagination >>BDC ", "");
+        	}
+    		return markerStr.getBytes("UTF-8");
+        }catch(Exception e){
+        	return null;
+        }
     }
 }

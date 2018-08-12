@@ -15,14 +15,19 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 
 import com.alibaba.fastjson.JSON;
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.exceptions.UnsupportedPdfException;
 import com.itextpdf.text.pdf.PRStream;
+import com.itextpdf.text.pdf.PdfArray;
 import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfDictionary;
 import com.itextpdf.text.pdf.PdfDocument;
+import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfLiteral;
 import com.itextpdf.text.pdf.PdfName;
+import com.itextpdf.text.pdf.PdfNumber;
 import com.itextpdf.text.pdf.PdfObject;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
@@ -38,46 +43,52 @@ import com.itextpdf.text.pdf.parser.TextRenderInfo;
 
 public class PdfContentStreamEditor extends PdfContentStreamProcessor{
 
-	public static void main(String[] args) throws IOException {
-		try {
-			PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\single.pdf");
-			OutputStream result = new FileOutputStream(new File("C:\\Users\\krison\\Desktop\\pdf\\single_out5.pdf"));
-			PdfStamper pdfStamper = new PdfStamper(reader, result);
-			PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
-			for(int i = 1;i <= 1;i++){
-				identityEditor.editPage(pdfStamper, i);
-			}
-			pdfStamper.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void main(String[] args) throws IOException, DocumentException {
+//		try {
+//			PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\single.pdf");
+//			OutputStream result = new FileOutputStream(new File("C:\\Users\\krison\\Desktop\\pdf\\single_out5.pdf"));
+//			PdfStamper pdfStamper = new PdfStamper(reader, result);
+//			PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
+//			for(int i = 1;i <= 1;i++){
+//				identityEditor.editPage(pdfStamper, i);
+//			}
+//			pdfStamper.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (DocumentException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
-//		System.out.println("--------------------------self test -----------------------------------------------------------");
-//        PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\test.pdf");
-//        reader.setTampered(true);
-//        PdfObject obj;
-//        System.out.println(reader.getXrefSize());
-//        int markerCount = 0;
-//        for (int i = 1; i <= reader.getXrefSize(); i++) {
-//            obj = reader.getPdfObject(i);
-//            if (obj != null && obj.isStream()) {
-//            	
-//                PRStream stream = (PRStream)obj;
-//                try{
+		System.out.println("--------------------------self test -----------------------------------------------------------");
+        PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\single.pdf");
+        reader.setTampered(true);
+	    //从文档中彻底删除的OCG组。
+	    //占位符变量
+	    reader.removeUnusedObjects();
+	    int pageCount = reader.getNumberOfPages();
+        PdfObject obj = null;
+        PRStream stream = null;
+        System.out.println(reader.getXrefSize());
+        int markerCount = 0;
+        for (int i = 1; i <= reader.getXrefSize(); i++) {
+            obj = reader.getPdfObject(i);
+            if (obj != null && obj.isStream()) {
+                stream = (PRStream)obj;
+                try{
 //                	String markerStr = new String(PdfReader.getStreamBytes(stream),"UTF-8");
-//                	if(markerStr.contains("WatermarkSettings")){
-//                		markerCount++;
-//                		System.out.println("i = :"+ i +"  type : "+markerStr );
-//                	}
-//                }catch(Exception e){
-//                	
-//                }
-                
-                
+                	String markerStr = new String(PdfReader.getStreamBytes(stream),"UTF-8");
+                	if(markerStr.contains("WatermarkSettings")){
+                		markerCount++;
+                		System.out.println("i = :"+ i +"  type : "+markerStr );
+                		//给它零长度和零数据删除它
+                		stream.put(PdfName.LENGTH, new PdfNumber(0));
+                		stream.setData(new byte[0]);
+                	}
+                }catch(Exception e){
+                	
+                }
                 
 //                byte[] b;
 //                try {
@@ -90,9 +101,50 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor{
 //                fos.write(b);
 //                fos.flush();
 //                fos.close();
-//            }
-//        }
-//        System.out.println("page :"+reader.getNumberOfPages()+"   marker:"+markerCount);
+            }
+        }
+        PdfDictionary curPage;
+        PdfArray contentarray;
+        for(int i=1; i<=pageCount; i++){
+            //获取页面
+            curPage = reader.getPageN(i);
+            //获取原始内容
+            contentarray = curPage.getAsArray(PdfName.CONTENTS);
+            if(contentarray != null){
+                //循环遍历内容
+                for(int j=0; j<contentarray.size(); j++){
+                    //获取原始字节流
+                	stream =(PRStream)contentarray.getAsStream(j);
+                	// 0代表水印层
+                	try{
+                    	String markerStr = new String(PdfReader.getStreamBytes(stream),"UTF-8");
+                    	if(markerStr.contains("WatermarkSettings")){
+                    		markerCount++;
+                    		System.out.println("i = :"+ i +"  type : "+markerStr );
+                    		//给它零长度和零数据删除它
+                    		stream.put(PdfName.LENGTH, new PdfNumber(0));
+                    		stream.setData(new byte[0]);
+                    	}
+                    }catch(Exception e){
+                    	
+                    }
+                }
+            }
+        }
+        
+        
+        
+        FileOutputStream fos = new FileOutputStream("C:\\Users\\krison\\Desktop\\pdf\\single_out.pdf");
+        Document doc = new Document(stream.getReader().getPageSize(1));
+        PdfCopy copy = new PdfCopy(doc, fos); 
+        doc.open();
+        for (int j = 1; j <= pageCount; j++) {  
+        	doc.newPage();  
+            PdfImportedPage page = copy.getImportedPage(stream.getReader(), j);  
+            copy.addPage(page);  
+        }  
+        doc.close();
+        System.out.println("page :"+reader.getNumberOfPages()+"   marker:"+markerCount);
         System.out.println("--------------------------self test over-----------------------------------------------------------");
 	}
 	
