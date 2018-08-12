@@ -2,7 +2,6 @@ import com.alibaba.fastjson.JSON;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
-import com.sun.deploy.util.ArrayUtil;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -77,8 +76,9 @@ public class TestRead {
 
     public static void readImage(){
 
-        File pdfFile = new File("C:\\Users\\Administrator\\Desktop\\pdf\\test.pdf");
-        File pdfFile_out = new File("C:\\Users\\Administrator\\Desktop\\pdf\\test_out.pdf");
+        File pdfFile = new File("C:\\Users\\krison\\Desktop\\pdf\\test.pdf");
+//        File pdfFile = new File("C:\\Users\\Administrator\\Desktop\\pdf\\test.pdf");
+//        File pdfFile_out = new File("C:\\Users\\Administrator\\Desktop\\pdf\\test_out.pdf");
 
         PDDocument document = null;
 //        PDDocument document_out = null;
@@ -123,7 +123,7 @@ public class TestRead {
                             }
                             // 方式二：将PDF文档中的图片 分别另存为图片。
                             BufferedImage bimage = image.getImage();
-                            FileOutputStream out = new FileOutputStream("C:\\Users\\Administrator\\Desktop\\pdf\\"+j+".png");
+                            FileOutputStream out = new FileOutputStream("C:\\Users\\krison\\Desktop\\pdf\\"+j+"."+image.getSuffix());
 
                             try {
                                 ImageIO.write(bimage, "png", out);

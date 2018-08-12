@@ -8,16 +8,28 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.*;
+import java.util.Dictionary;
+import java.util.Map;
 
 
 public class Test {
 
-    public static void main(String[] args){
-//        Test test = new Test();
-        String srcPath="D:\\Github\\watermark_rm\\src\\a.pdf";
-//        String buildPath="D:\\Github\\watermark_rm\\src\\a_out.pdf";
-//        test.removeWatermark(srcPath,buildPath);
-        App.extractImage(srcPath);
+    public static void main(String[] args) throws Exception{
+        String srcPath="C:\\Users\\krison\\Desktop\\pdf\\test.pdf";
+        String buildPath="C:\\Users\\krison\\Desktop\\pdf\\test_out.pdf";
+//        String result = removeWatermark(srcPath,buildPath);
+//        System.out.println(result);
+//        App.extractImage(srcPath);
+        
+        PdfDocument pdf = new PdfDocument(new PdfReader("input.pdf"), new PdfWriter("output.pdf"));
+        PdfPage firstPage = pdf.getFirstPage();
+        PdfCanvas under = new PdfCanvas(firstPage.newContentStreamBefore(), new PdfResources(), pdf);
+        Paragraph p = new Paragraph("~~WATERMARK~~").setFontSize(72).setFontColor(Color.RED).setBold();
+        float x = firstPage.getPageSize().getWidth() / 2;
+        float y = firstPage.getPageSize().getHeight() / 2;
+        new Canvas(under, pdf, pdf.getDefaultPageSize())
+            .showTextAligned(p, x, y, 1, TextAlignment.CENTER, VerticalAlignment.MIDDLE, (float) (Math.PI / 4));
+        pdf.close();
     }
 
     /**
@@ -27,7 +39,7 @@ public class Test {
      * @param buildPath 去除水印pdf
      * @return
      */
-    public String removeWatermark(String srcPath, String buildPath) {
+    public static String removeWatermark(String srcPath, String buildPath) {
         //注意，这将破坏所有层的文档中，只有当你没有额外的层使用
         try {
             PdfReader reader = new PdfReader(srcPath);

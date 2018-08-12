@@ -1,5 +1,7 @@
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.ocg.OCGParser;
+import com.itextpdf.text.pdf.ocg.OCGRemover;
 import com.itextpdf.text.pdf.parser.*;
 
 import java.io.File;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * <a href="http://stackoverflow.com/questions/35526822/removing-watermark-from-pdf-itextsharp">
@@ -29,23 +33,30 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor
 
     public static void main(String[] args) {
         try {
-            PdfReader reader = new PdfReader("C:\\Users\\Administrator\\Desktop\\pdf\\test.pdf");
-            OutputStream result = new FileOutputStream(new File("D:\\Github\\watermark_rm\\src\\out.pdf"));
+            PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\single.pdf");
+            OutputStream result = new FileOutputStream(new File("C:\\Users\\krison\\Desktop\\pdf\\single_out.pdf"));
             PdfStamper pdfStamper = new PdfStamper(reader, result);
             Map<String, PdfLayer> pdfLayers = pdfStamper.getPdfLayers();
             ////除导出的图层以外，删除其他所有图层
             for(String key : pdfLayers.keySet()){
                 System.out.println(key);
-                if (!key.contains("UV"))
-                {
-                    PdfOCG oCGRemover = new OCGRemover();
-                    oCGRemover.RemoveLayers(reader, key);
+                if(!key.contains("UV"))
+                {	
+                	System.out.println(" find Watermark");
+                	PdfLayer pdfLayer = pdfLayers.get(key);
+                	System.out.println(pdfStamper.getOverContent(1));
+                	
+                	IOUtils.write(pdfLayer.getBytes(), new FileOutputStream(new File("C:\\Users\\krison\\Desktop\\pdf\\layers.png")));
+                	
+                	OCGRemover oCGRemover = new OCGRemover();
+                    oCGRemover.removeLayers(pdfStamper.getReader(), key);
                 }
             }
 
 //            PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
 //            for(int i = 1;i <= reader.getNumberOfPages();i++){
-////                identityEditor.editPage(pdfStamper, i);
+//            	System.out.println(" edit page");
+//                identityEditor.editPage(pdfStamper, i);
 //            }
             pdfStamper.close();
         } catch (IOException e) {
