@@ -1,3 +1,5 @@
+package com.itext;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.ocg.OCGParser;
@@ -53,7 +55,7 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor
                 }
             }
 
-//            PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
+//            com.itext.PdfContentStreamEditor identityEditor = new com.itext.PdfContentStreamEditor();
 //            for(int i = 1;i <= reader.getNumberOfPages();i++){
 //            	System.out.println(" edit page");
 //                identityEditor.editPage(pdfStamper, i);

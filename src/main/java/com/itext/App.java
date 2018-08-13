@@ -1,9 +1,10 @@
+package com.itext;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.exceptions.UnsupportedPdfException;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.parser.PdfContentStreamProcessor;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;

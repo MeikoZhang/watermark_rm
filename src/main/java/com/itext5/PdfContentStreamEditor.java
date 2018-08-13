@@ -48,7 +48,7 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor{
 //			PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\single.pdf");
 //			OutputStream result = new FileOutputStream(new File("C:\\Users\\krison\\Desktop\\pdf\\single_out5.pdf"));
 //			PdfStamper pdfStamper = new PdfStamper(reader, result);
-//			PdfContentStreamEditor identityEditor = new PdfContentStreamEditor();
+//			com.itext.PdfContentStreamEditor identityEditor = new com.itext.PdfContentStreamEditor();
 //			for(int i = 1;i <= 1;i++){
 //				identityEditor.editPage(pdfStamper, i);
 //			}
@@ -64,8 +64,8 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor{
 		System.out.println("--------------------------self test -----------------------------------------------------------");
         PdfReader reader = new PdfReader("C:\\Users\\krison\\Desktop\\pdf\\single.pdf");
         reader.setTampered(true);
-	    //´ÓÎÄµµÖÐ³¹µ×É¾³ýµÄOCG×é¡£
-	    //Õ¼Î»·û±äÁ¿
+	    //ï¿½ï¿½ï¿½Äµï¿½ï¿½Ð³ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½OCGï¿½é¡£
+	    //Õ¼Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	    reader.removeUnusedObjects();
 	    int pageCount = reader.getNumberOfPages();
         PdfObject obj = null;
@@ -82,7 +82,7 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor{
                 	if(markerStr.contains("WatermarkSettings")){
                 		markerCount++;
                 		System.out.println("i = :"+ i +"  type : "+markerStr );
-                		//¸øËüÁã³¤¶ÈºÍÁãÊý¾ÝÉ¾³ýËü
+                		//ï¿½ï¿½ï¿½ï¿½ï¿½ã³¤ï¿½Èºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½
                 		stream.put(PdfName.LENGTH, new PdfNumber(0));
                 		stream.setData(new byte[0]);
                 	}
@@ -106,22 +106,22 @@ public class PdfContentStreamEditor extends PdfContentStreamProcessor{
         PdfDictionary curPage;
         PdfArray contentarray;
         for(int i=1; i<=pageCount; i++){
-            //»ñÈ¡Ò³Ãæ
+            //ï¿½ï¿½È¡Ò³ï¿½ï¿½
             curPage = reader.getPageN(i);
-            //»ñÈ¡Ô­Ê¼ÄÚÈÝ
+            //ï¿½ï¿½È¡Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
             contentarray = curPage.getAsArray(PdfName.CONTENTS);
             if(contentarray != null){
-                //Ñ­»·±éÀúÄÚÈÝ
+                //Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 for(int j=0; j<contentarray.size(); j++){
-                    //»ñÈ¡Ô­Ê¼×Ö½ÚÁ÷
+                    //ï¿½ï¿½È¡Ô­Ê¼ï¿½Ö½ï¿½ï¿½ï¿½
                 	stream =(PRStream)contentarray.getAsStream(j);
-                	// 0´ú±íË®Ó¡²ã
+                	// 0ï¿½ï¿½ï¿½ï¿½Ë®Ó¡ï¿½ï¿½
                 	try{
                     	String markerStr = new String(PdfReader.getStreamBytes(stream),"UTF-8");
                     	if(markerStr.contains("WatermarkSettings")){
                     		markerCount++;
                     		System.out.println("i = :"+ i +"  type : "+markerStr );
-                    		//¸øËüÁã³¤¶ÈºÍÁãÊý¾ÝÉ¾³ýËü
+                    		//ï¿½ï¿½ï¿½ï¿½ï¿½ã³¤ï¿½Èºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½
                     		stream.put(PdfName.LENGTH, new PdfNumber(0));
                     		stream.setData(new byte[0]);
                     	}

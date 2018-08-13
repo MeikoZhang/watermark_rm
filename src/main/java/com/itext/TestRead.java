@@ -1,3 +1,5 @@
+package com.itext;
+
 import com.alibaba.fastjson.JSON;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfReader;
@@ -11,7 +13,6 @@ import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;

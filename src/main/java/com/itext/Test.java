@@ -1,3 +1,5 @@
+package com.itext;
+
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import org.apache.pdfbox.io.RandomAccess;
@@ -19,7 +21,7 @@ public class Test {
         String buildPath="C:\\Users\\krison\\Desktop\\pdf\\test_out.pdf";
 //        String result = removeWatermark(srcPath,buildPath);
 //        System.out.println(result);
-//        App.extractImage(srcPath);
+//        com.itext.App.extractImage(srcPath);
         
         PdfDocument pdf = new PdfDocument(new PdfReader("input.pdf"), new PdfWriter("output.pdf"));
         PdfPage firstPage = pdf.getFirstPage();
