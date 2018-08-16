@@ -60,7 +60,12 @@
 	</repositories>
 
 	<dependencies>
-	
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.8.13</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
 		<!--<dependency>-->
 		    <!--<groupId>com.itextpdf</groupId>-->
@@ -107,24 +112,31 @@
 		</dependency>
 
 		<!-- pdfInvoice -->
-		<!--<dependency>-->
-			<!--<groupId>com.itextpdf</groupId>-->
-			<!--<artifactId>zugferd</artifactId>-->
-			<!--<version>${itext.pfdinvoice.version}</version>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>zugferd</artifactId>
+			<version>2.0.1</version>
+		</dependency>
 
 		<!-- pdfHTML -->
-		<!--<dependency>-->
-			<!--<groupId>com.itextpdf</groupId>-->
-			<!--<artifactId>html2pdf</artifactId>-->
-			<!--<version>${itext.pdfhtml.version}</version>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>html2pdf</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 
 		<!-- pdfXFA -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>pdfxfa</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+		<!-- pdf2Data -->
 		<!--<dependency>-->
-			<!--<groupId>com.itextpdf</groupId>-->
-			<!--<artifactId>pdfxfa</artifactId>-->
-			<!--<version>${itext.pdfxfa.version}</version>-->
+			<!--<groupId>com.duallab.pdf2data</groupId>-->
+			<!--<artifactId>pdf2data</artifactId>-->
+			<!--<version>${project.version}</version>-->
 		<!--</dependency>-->
 
 		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
