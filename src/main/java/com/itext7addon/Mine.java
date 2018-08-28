@@ -24,29 +24,29 @@ import java.util.List;
 
 public class Mine {
 
-    static final String DEST = "/Users/krison/Desktop/pdf/sample_out.pdf";
-    static final String SRC = "/Users/krison/Desktop/pdf/test.pdf";
+    static final String DEST = "C:\\Users\\Administrator\\Desktop\\pdf\\sample_out.pdf";
+    static final String SRC = "C:\\Users\\Administrator\\Desktop\\pdf\\3.42-2003i.pdf";
 
     public static void main(String[] args) throws Exception {
 
-        String inFileDir = "/Users/krison/Downloads/sample/";
-        String outFileDir = "/Users/krison/Downloads/sample_out/";
-        File inFile = new File(inFileDir);
-        File[] files = inFile.listFiles();
-        System.out.println("total file num :" + files.length);
-        int i = 1;
-        for(File file : files){
-            if(file.getName().contains(".pdf")){
-                String srcFileName = inFileDir + file.getName();
-                String outFileName = outFileDir + file.getName();
-                System.out.println(srcFileName + " ===>" + outFileName);
-                process(srcFileName,outFileName);
-                System.out.println("process over file num :" + i++);
-            }
-        }
-        System.out.println("total file complete ...");
+//        String inFileDir = "/Users/krison/Downloads/sample/";
+//        String outFileDir = "/Users/krison/Downloads/sample_out/";
+//        File inFile = new File(inFileDir);
+//        File[] files = inFile.listFiles();
+//        System.out.println("total file num :" + files.length);
+//        int i = 1;
+//        for(File file : files){
+//            if(file.getName().contains(".pdf")){
+//                String srcFileName = inFileDir + file.getName();
+//                String outFileName = outFileDir + file.getName();
+//                System.out.println(srcFileName + " ===>" + outFileName);
+//                process(srcFileName,outFileName);
+//                System.out.println("process over file num :" + i++);
+//            }
+//        }
+//        System.out.println("total file complete ...");
 
-//        process(SRC,DEST);
+        process(SRC,DEST);
 
 //
     }
@@ -61,7 +61,7 @@ public class Mine {
         int numberOfPages = pdfDoc.getNumberOfPages();
         for(int i = 1; i <= numberOfPages; i++){
             PdfPage page = pdfDoc.getPage(i);
-            cleanRect(page, i);
+//            cleanRect(page, i);
             cleanImage(page);
         }
 
@@ -158,11 +158,11 @@ public class Mine {
         BufferedImage bi = image.getBufferedImage();
 //        saveImage(bi,"/Users/krison/Desktop/pdf/test_1.jpg");
 
-        BufferedImage newBi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(bi, newBi);
+        BufferedImage newBi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+//        new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(bi, newBi);
 
         Graphics graphics = newBi.getGraphics();
-//        graphics.drawImage(bi, 0, 0, null);
+        graphics.drawImage(bi, 0, 0, null);
 
 //        //设置画笔颜色
 //        graphics.setColor(new Color(255,255,255));
@@ -172,16 +172,52 @@ public class Mine {
 //        graphics.drawString("",0,0);
 ////        drawImage(bi, 0, 0, null);
 
-//        int[] rgb = new int[3];
+        int[] rgb = new int[3];
         for(int y=0; y < newBi.getHeight(); y++)
             for(int x=0;x < newBi.getWidth(); x++) {
-                int L = getLvalue(newBi, x, y);
-//                int L1 = getLvalue(newBi, x, y);
-                if(L > 190){
+                // 根据RGB像素值进行处理
+                int pixel = newBi.getRGB(x, y);
+                rgb[0] = (pixel & 0xff0000) >> 16;
+                rgb[1] = (pixel & 0xff00) >> 8;
+                rgb[2] = (pixel & 0xff);
+
+                // 去除蓝色的部分
+                if(rgb[2] == 255 && rgb[0] != rgb[2] && rgb[1] != rgb[2]){
+                    newBi.setRGB(x, y, new Color(255,255,255).getRGB());
+                    continue;
+                }
+
+//                if(y < newBi.getHeight() * 0.25 || y> newBi.getHeight() * 0.75
+//                        || x < newBi.getWidth() * 0.25 || x > newBi.getWidth() * 0.75){
+//                    // 判断四边边界
+//                    if(x < newBi.getWidth() * 0.04 || x > newBi.getWidth() * 0.96
+//                            || y < newBi.getHeight() * 0.04 || y > newBi.getHeight() * 0.96){
+//                        newBi.setRGB(x, y, new Color(255,255,255).getRGB());
+//                    }
+//                    // 不进行其他处理
+//                    continue;
+//                }
+
+                // 判断四边边界
+                // 边界处理
+                if(x < newBi.getWidth() * 0.04 || x > newBi.getWidth() * 0.96
+                        || y < newBi.getHeight() * 0.04 || y > newBi.getHeight() * 0.96){
+                    newBi.setRGB(x, y, new Color(255,255,255).getRGB());
+                    continue;
+                }
+
+                // 对超过阈值的像素进行颜色替换 - 去除水印
+                if(rgb[0] > 190){
                     newBi.setRGB(x, y, new Color(255,255,255).getRGB());
                 }else{
                     newBi.setRGB(x, y, bi.getRGB(x,y));
                 }
+//                int L = getLvalue(newBi, x, y);
+//                if(L > 195){
+//                    newBi.setRGB(x, y, new Color(255,255,255).getRGB());
+//                }else{
+//                    newBi.setRGB(x, y, bi.getRGB(x,y));
+//                }
             }
         graphics.drawImage(newBi, 0, 0,null);
 //        saveImage(newBi,"/Users/krison/Desktop/pdf/test_1_new.jpg");
