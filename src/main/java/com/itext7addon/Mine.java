@@ -17,38 +17,51 @@ import java.awt.color.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 
 public class Mine {
 
-    static final String DEST = "C:\\Users\\Administrator\\Desktop\\pdf\\sample_out.pdf";
-    static final String SRC = "C:\\Users\\Administrator\\Desktop\\pdf\\3.42-2003i.pdf";
+    static final String DEST = "C:\\Users\\Administrator\\Desktop\\pdf\\pdf100_out\\3.43-2003i.pdf";
+    static final String SRC = "C:\\Users\\Administrator\\Desktop\\pdf\\pdf100\\3.43-2003i.pdf";
 
     public static void main(String[] args) throws Exception {
+//        process(SRC,DEST);
 
-//        String inFileDir = "/Users/krison/Downloads/sample/";
-//        String outFileDir = "/Users/krison/Downloads/sample_out/";
-//        File inFile = new File(inFileDir);
-//        File[] files = inFile.listFiles();
-//        System.out.println("total file num :" + files.length);
-//        int i = 1;
-//        for(File file : files){
-//            if(file.getName().contains(".pdf")){
-//                String srcFileName = inFileDir + file.getName();
-//                String outFileName = outFileDir + file.getName();
-//                System.out.println(srcFileName + " ===>" + outFileName);
-//                process(srcFileName,outFileName);
-//                System.out.println("process over file num :" + i++);
-//            }
-//        }
-//        System.out.println("total file complete ...");
+        String inFileDir = "E:\\work\\文件\\pdf\\哈2\\";
+        String outFileDir = "E:\\work\\文件\\pdf_out\\哈2\\";
+        File outFile = new File(outFileDir);
+        if(!outFile.exists()){
+            outFile.mkdirs();
+        }
+        String[] existFiles = outFile.list();
 
-        process(SRC,DEST);
+        File inFile = new File(inFileDir);
+        String[] files = inFile.list();
 
-//
+        System.out.println("total file num :" + files.length);
+        int i = 1;
+        for(String file : files){
+            if(file.contains(".pdf")){
+                if (Arrays.binarySearch(existFiles,file) < 0){
+                    String srcFileName = inFileDir + file;
+                    String outFileName = outFileDir + file;
+                    System.out.println(srcFileName + " ===>" + outFileName);
+                    try{
+                        process(srcFileName,outFileName);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        File deleteFile = new File(outFileName);
+                        if(deleteFile.exists()){
+                            deleteFile.delete();
+                        }
+                    }
+                    System.out.println(new Date().toLocaleString() + " process over file num :" + i++);
+                }
+            }
+        }
+        System.out.println("total file complete ...");
     }
 
     static void process(String src,String dest) throws IOException {
@@ -94,7 +107,7 @@ public class Mine {
         cleaner.cleanUp();
     }
 
-
+    static BufferedImage bi;
     static void cleanImage(PdfPage pdfPage) throws IOException {
         PdfDictionary page = pdfPage.getPdfObject();
         PdfDictionary resources = page.getAsDictionary(PdfName.Resources);
@@ -108,7 +121,7 @@ public class Mine {
                 continue;
             }
             PdfImageXObject image = new PdfImageXObject(stream);
-            BufferedImage bi = image.getBufferedImage();
+            bi = image.getBufferedImage();
             if (bi == null) {
                 continue;
             }
@@ -200,7 +213,7 @@ public class Mine {
 
                 // 判断四边边界
                 // 边界处理
-                if(x < newBi.getWidth() * 0.04 || x > newBi.getWidth() * 0.96
+                if(x < newBi.getWidth() * 0.05 || x > newBi.getWidth() * 0.95
                         || y < newBi.getHeight() * 0.04 || y > newBi.getHeight() * 0.96){
                     newBi.setRGB(x, y, new Color(255,255,255).getRGB());
                     continue;
