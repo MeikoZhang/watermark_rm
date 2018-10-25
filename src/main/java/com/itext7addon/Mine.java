@@ -23,59 +23,64 @@ import java.util.List;
 
 public class Mine {
 
-    static final String DEST = "C:\\Users\\Administrator\\Desktop\\pdf\\pdf100_out\\3.43-2003i.pdf";
-    static final String SRC = "C:\\Users\\Administrator\\Desktop\\pdf\\pdf100\\3.43-2003i.pdf";
+    static final String SRC = "C:\\Users\\Administrator\\Desktop\\pdf处理\\俄罗斯\\AA_GOST_R_55491-2013.pdf";
+    static final String DEST = "C:\\Users\\Administrator\\Desktop\\pdf处理\\俄罗斯\\AA_GOST_R_55491-2013-out.pdf";
 
     public static void main(String[] args) throws Exception {
-//        process(SRC,DEST);
+        process(SRC,DEST);
 
-        String inFileDir = "E:\\work\\文件\\pdf\\哈2\\";
-        String outFileDir = "E:\\work\\文件\\pdf_out\\哈2\\";
-        File outFile = new File(outFileDir);
-        if(!outFile.exists()){
-            outFile.mkdirs();
-        }
-        String[] existFiles = outFile.list();
-
-        File inFile = new File(inFileDir);
-        String[] files = inFile.list();
-
-        System.out.println("total file num :" + files.length);
-        int i = 1;
-        for(String file : files){
-            if(file.contains(".pdf")){
-                if (Arrays.binarySearch(existFiles,file) < 0){
-                    String srcFileName = inFileDir + file;
-                    String outFileName = outFileDir + file;
-                    System.out.println(srcFileName + " ===>" + outFileName);
-                    try{
-                        process(srcFileName,outFileName);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        File deleteFile = new File(outFileName);
-                        if(deleteFile.exists()){
-                            deleteFile.delete();
-                        }
-                    }
-                    System.out.println(new Date().toLocaleString() + " process over file num :" + i++);
-                }
-            }
-        }
+//        String inFileDir = "E:\\work\\文件\\pdf\\哈2\\";
+//        String outFileDir = "E:\\work\\文件\\pdf_out\\哈2\\";
+//        File outFile = new File(outFileDir);
+//        if(!outFile.exists()){
+//            outFile.mkdirs();
+//        }
+//        String[] existFiles = outFile.list();
+//
+//        File inFile = new File(inFileDir);
+//        String[] files = inFile.list();
+//
+//        System.out.println("total file num :" + files.length);
+//        int i = 1;
+//        for(String file : files){
+//            if(file.contains(".pdf")){
+//                if (Arrays.binarySearch(existFiles,file) < 0){
+//                    String srcFileName = inFileDir + file;
+//                    String outFileName = outFileDir + file;
+//                    System.out.println(srcFileName + " ===>" + outFileName);
+//                    try{
+//                        process(srcFileName,outFileName);
+//                    }catch (Exception e){
+//                        e.printStackTrace();
+//                        File deleteFile = new File(outFileName);
+//                        if(deleteFile.exists()){
+//                            deleteFile.delete();
+//                        }
+//                    }
+//                    System.out.println(new Date().toLocaleString() + " process over file num :" + i++);
+//                }
+//            }
+//        }
         System.out.println("total file complete ...");
     }
 
     static void process(String src,String dest) throws IOException {
         //Load the license file to use cleanup features
         //"D:\\Github\\watermark_rm\\src\\main\\resources\\itextkey.xml"
-        LicenseKey.loadLicenseFile(Mine.class.getResource("/itextkey.xml").getPath());
+//        LicenseKey.loadLicenseFile(Mine.class.getResource("/itextkey.xml").getPath());
 
         PdfDocument pdfDoc = new PdfDocument(new PdfReader(src), new PdfWriter(dest));
 
+        int[] pa = new int[]{20};
         int numberOfPages = pdfDoc.getNumberOfPages();
         for(int i = 1; i <= numberOfPages; i++){
+            //15,17,19,  21,23,25,27,29
+//            if(Arrays.binarySearch(pa,i) >= 0){
+//
+//            }
             PdfPage page = pdfDoc.getPage(i);
 //            cleanRect(page, i);
-            cleanImage(page);
+            cleanImage(page, i);
         }
 
         pdfDoc.close();
@@ -108,7 +113,7 @@ public class Mine {
     }
 
     static BufferedImage bi;
-    static void cleanImage(PdfPage pdfPage) throws IOException {
+    static void cleanImage(PdfPage pdfPage, int pageNum) throws IOException {
         PdfDictionary page = pdfPage.getPdfObject();
         PdfDictionary resources = page.getAsDictionary(PdfName.Resources);
         PdfDictionary xobjects = resources.getAsDictionary(PdfName.XObject);
@@ -141,7 +146,7 @@ public class Mine {
 //            System.out.println("This is a image,width: " + bi.getWidth() + "  height: " + bi.getHeight());
 //            Rectangle pageSize = pdfPage.getPageSize();
             //去除水印的扫描图
-            Image img = makeBlackAndWhitePng(image);
+            Image img = makeBlackAndWhitePng(image,pageNum);
             //扫描图像替换
             replaceStream(stream, img.getXObject().getPdfObject());
 //            if(bi.getWidth() == (int)pageSize.getWidth()
@@ -167,7 +172,7 @@ public class Mine {
      * @return
      * @throws IOException
      */
-    public static Image makeBlackAndWhitePng(PdfImageXObject image) throws IOException {
+    public static Image makeBlackAndWhitePng(PdfImageXObject image, int pageNum) throws IOException {
         BufferedImage bi = image.getBufferedImage();
 //        saveImage(bi,"/Users/krison/Desktop/pdf/test_1.jpg");
 
@@ -186,45 +191,69 @@ public class Mine {
 ////        drawImage(bi, 0, 0, null);
 
         int[] rgb = new int[3];
+        System.out.println(pageNum+"  "+newBi.getHeight()+","+newBi.getWidth());
         for(int y=0; y < newBi.getHeight(); y++)
             for(int x=0;x < newBi.getWidth(); x++) {
+
                 // 根据RGB像素值进行处理
                 int pixel = newBi.getRGB(x, y);
-                rgb[0] = (pixel & 0xff0000) >> 16;
-                rgb[1] = (pixel & 0xff00) >> 8;
-                rgb[2] = (pixel & 0xff);
+                Color pixColor = new Color(pixel);
 
                 // 去除蓝色的部分
-                if(rgb[2] == 255 && rgb[0] != rgb[2] && rgb[1] != rgb[2]){
+                if(pixColor.getBlue() == 255
+                        && pixColor.getRed() != pixColor.getBlue()
+                        && pixColor.getGreen() != pixColor.getBlue()){
                     newBi.setRGB(x, y, new Color(255,255,255).getRGB());
                     continue;
                 }
-
-//                if(y < newBi.getHeight() * 0.25 || y> newBi.getHeight() * 0.75
-//                        || x < newBi.getWidth() * 0.25 || x > newBi.getWidth() * 0.75){
-//                    // 判断四边边界
-//                    if(x < newBi.getWidth() * 0.04 || x > newBi.getWidth() * 0.96
-//                            || y < newBi.getHeight() * 0.04 || y > newBi.getHeight() * 0.96){
-//                        newBi.setRGB(x, y, new Color(255,255,255).getRGB());
-//                    }
-//                    // 不进行其他处理
-//                    continue;
-//                }
 
                 // 判断四边边界
                 // 边界处理
-                if(x < newBi.getWidth() * 0.05 || x > newBi.getWidth() * 0.95
-                        || y < newBi.getHeight() * 0.04 || y > newBi.getHeight() * 0.96){
-                    newBi.setRGB(x, y, new Color(255,255,255).getRGB());
-                    continue;
-                }
+//                if(x < newBi.getWidth() * 0.05 || x > newBi.getWidth() * 0.95
+//                        || y < newBi.getHeight() * 0.04 || y > newBi.getHeight() * 0.96){
+//                    newBi.setRGB(x, y, new Color(255,255,255).getRGB());
+//                    continue;
+//                }
+
+                Color fillColor = new Color(255,255,255);
+//                Color fillColor = new Color(255,160,160);
+
+                //上方
+//                if(y >= 19 && y <= 32 && x >= 225 && x <= 390){
+//                    newBi.setRGB(x, y, fillColor.getRGB());
+//                    continue;
+//                }
+                //下方
+//                if(y >= 825 && y <= 895 && x >= 200 && x <= 420){
+//                    newBi.setRGB(x, y, fillColor.getRGB());
+//                    continue;
+//                }
+                //左边
+    //                if(x >= 20 && x <= 30 && y >= 220 && y <= 660){
+//                    if(pageNum % 2 == 0){
+//                        newBi.setRGB(x, y, fillColor.getRGB());
+//                        continue;
+//                    }
+//                }
+                //右边
+//                if(x >= 558 && x <= 602 && y >= 230 && y <= 660){
+//                    if(pageNum % 2 == 1) {
+//                        newBi.setRGB(x, y, fillColor.getRGB());
+//                        continue;
+//                    }
+//                }
 
                 // 对超过阈值的像素进行颜色替换 - 去除水印
-                if(rgb[0] > 190){
+//                red >= 145 && greed >= 145 && blue >= 145
+                if(pixColor.getRed() > 145
+                        && pixColor.getGreen() > 145
+                        && pixColor.getBlue() > 145){
                     newBi.setRGB(x, y, new Color(255,255,255).getRGB());
                 }else{
                     newBi.setRGB(x, y, bi.getRGB(x,y));
                 }
+
+                //获取灰度值
 //                int L = getLvalue(newBi, x, y);
 //                if(L > 195){
 //                    newBi.setRGB(x, y, new Color(255,255,255).getRGB());
